@@ -2,6 +2,9 @@ package org.takanolab.ar.search;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.takanolab.ar.log.SdLog;
+
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -21,7 +24,6 @@ import com.paar.ch9.SearchDataSource;
 
 import jp.androidgroup.nyartoolkit.NyARToolkitAndroidActivity;
 import jp.androidgroup.nyartoolkit.R;
-import jp.androidgroup.nyartoolkit.SdLog;
 
 public class SearchActivity extends ListActivity {
 	

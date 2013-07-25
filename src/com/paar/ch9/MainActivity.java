@@ -12,12 +12,12 @@ import java.util.concurrent.TimeUnit;
 
 import jp.androidgroup.nyartoolkit.NyARToolkitAndroidActivity;
 import jp.androidgroup.nyartoolkit.R;
-import jp.androidgroup.nyartoolkit.SdLog;
 import jp.androidgroup.nyartoolkit.utils.camera.CameraPreview;
 
 import org.apache.lucene.analysis.PorterStemmer;
 import org.takanolab.ar.db.MyDbAdapter;
 import org.takanolab.ar.db.StopwordsHelper;
+import org.takanolab.ar.log.SdLog;
 
 import android.content.Intent;
 import android.hardware.Camera;

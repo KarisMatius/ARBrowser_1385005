@@ -3,6 +3,7 @@ package jp.androidgroup.nyartoolkit;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.Buffer;
 import java.nio.IntBuffer;
 
@@ -20,6 +21,9 @@ import jp.androidgroup.nyartoolkit.utils.gl.AndGLView;
 import jp.nyatla.nyartoolkit.core.NyARException;
 import jp.nyatla.nyartoolkit.markersystem.NyARMarkerSystemConfig;
 
+import org.takanolab.ar.log.HttpClientPost;
+import org.takanolab.ar.log.HttpClientPost2;
+import org.takanolab.ar.log.SdLog;
 import org.takanolab.kGLModel.KGLException;
 import org.takanolab.kGLModel.KGLModelData;
 
@@ -31,6 +35,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.hardware.Camera;
 import android.os.Environment;
@@ -129,7 +134,8 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	int count_ScreenCapture = 0;
 	int uiMode = 0;
 	int markerModelId = 0;
-//	private int markerModelId = 0;
+	//HTTP通信で送信する操作履歴用
+	String log = null;
 	//--------------------------------------------
 
 	
@@ -187,17 +193,15 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		
 		
 		//
-		// 右側にView(ListLayout)を表示します
+		// 右側に情報推薦用View(ListLayout)を表示します（未実装）
 		//
 		String[] str = {"Papilio Maackii","Ladybug","Bald Eagle","Grayling","Steller's Jay"};
 		// ListViewを作成
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list, str); 
 		ListView lists = new ListView(this);
-
-		
 		
 		// 背景色を選択
-		//		listview.setBackgroundColor(Color.BLACK);
+		lists.setBackgroundColor(Color.BLACK);
 		lists.setAdapter(adapter);
 
 		// FrameLayout作成
@@ -210,7 +214,10 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		addContentView(side, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.FILL_PARENT));
 		//
 		// ここまで
-		//a
+		//
+		
+		
+		
 		Log.d(TAG,"onStart Time " + (end - start) + "ms");
 	}
 
@@ -268,9 +275,15 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				switch(uiMode){
 				case 0: 
 					SdLog.put("Start3DCGMode");
+					log = SdLog.get("Start3DCGMode");
+					HttpClientPost hcp = new HttpClientPost();
+					hcp.execute(log);
 					break;
 				case 1:
 					SdLog.put("StartFreeMode");
+					log = SdLog.get("StartFreeMode");
+					HttpClientPost hcp2 = new HttpClientPost();
+					hcp2.execute(log);
 					break;
 				}
 			}
@@ -408,7 +421,12 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			model_data[id] = getCreateModel(gl, id);
 			
 			//IDに一致したマーカー上にモデルが描写されたことをSdLogに出力
-			if(sdLogflag) SdLog.put("DrawModel," + modelNames[id]);
+			if(sdLogflag){
+				SdLog.put("DrawModel," + modelNames[id]);
+				log = SdLog.get("DrawModel," + modelNames[id]);
+				HttpClientPost hcp = new HttpClientPost();
+				hcp.execute(log);
+			}
 			
 //			return;
 		}else{
@@ -449,9 +467,17 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		System.out.println("drawmodelfixation1 マーカーid : " + id);
 		
 		if(model_data[id] == null){
-			//要検証 5/15
 			Log.d(TAG,modelNames[id] + " is NULL Model Create!");
 			model_data[id] = getCreateModel(gl, id);
+			
+			//IDに一致したマーカー上にモデルが描写されたことをSdLogに出力
+			if(sdLogflag){
+				SdLog.put("selectFixationModel," + modelNames[markerModelId]);
+				log = SdLog.get("selectFixationModel," + modelNames[markerModelId]);
+				HttpClientPost hcp = new HttpClientPost();
+				hcp.execute(log);
+			}
+		
 //			return;
 		}else{
 //			Log.d(TAG,modelNames[id] + "is Not Null Texture Reload");
@@ -516,25 +542,45 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		case 0:
 			manipulationMode = 0;
 			count_Position++;
-			if(sdLogflag) SdLog.put("Position," + modelNames[markerModelId]);
+			if(sdLogflag){
+				SdLog.put("Position," + modelNames[markerModelId]);
+				log = SdLog.get("Position," + modelNames[markerModelId]);
+				HttpClientPost hcp = new HttpClientPost();
+				hcp.execute(log);
+			}
 			return true;
 
 		case 1:
 			manipulationMode = 1;
 			count_Rotate++;
-			if(sdLogflag) SdLog.put("Rotate," + modelNames[markerModelId]);
+			if(sdLogflag){
+				SdLog.put("Rotate," + modelNames[markerModelId]);
+				log = SdLog.get("Rotate," + modelNames[markerModelId]);
+				HttpClientPost hcp = new HttpClientPost();
+				hcp.execute(log);
+			}
 			return true;
 
 		case 2:
 			manipulationMode = 2;
 			count_Scale++;
-			if(sdLogflag) SdLog.put("Scale," + modelNames[markerModelId]);
+			if(sdLogflag){
+				SdLog.put("Scale," + modelNames[markerModelId]);
+				log = SdLog.get("Scale," + modelNames[markerModelId]);
+				HttpClientPost hcp = new HttpClientPost();
+				hcp.execute(log);
+			}
 			return true;
 			
 		case 3:
 			Shot();
 			count_ScreenCapture++;
-			if(sdLogflag) SdLog.put("ScreenCapture," + modelNames[markerModelId]);
+			if(sdLogflag){
+				SdLog.put("ScreenCapture," + modelNames[markerModelId]);
+				log = SdLog.get("ScreenCapture," + modelNames[markerModelId]);
+				HttpClientPost hcp = new HttpClientPost();
+				hcp.execute(log);
+			}
 			return true;
 			
 		case 4:
@@ -542,7 +588,12 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				freemodeflag = false;
 				// モードが変わった
 				uiMode = 0;
-				if(sdLogflag) SdLog.put("Start3DCGMode");
+				if(sdLogflag){
+					SdLog.put("Start3DCGMode");
+					log = SdLog.get("Start3DCGMode");
+					HttpClientPost hcp = new HttpClientPost();
+					hcp.execute(log);
+				}
 			}else{
 				selectFixationModel();
 			}
@@ -559,6 +610,9 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				e.printStackTrace();
 			}
 			SdLog.put("StartQuestMode");
+			log = SdLog.get("StartQuestMode");
+			HttpClientPost hcp = new HttpClientPost();
+			hcp.execute(log);
 			return true;
 		
 		case 6:
@@ -566,11 +620,19 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
             Intent searchintent = new Intent(jp.androidgroup.nyartoolkit.NyARToolkitAndroidActivity.this, org.takanolab.ar.search.SearchActivity.class);
             startActivity(searchintent);
             SdLog.put("StartSearchMode");
+            log = SdLog.get("StartSearchMode");
+			HttpClientPost hcp2 = new HttpClientPost();
+			hcp2.execute(log);
             return true;
 			
 		case 7:
 			finish();
-			if(sdLogflag) SdLog.put("Finish");
+			if(sdLogflag){
+				SdLog.put("Finish");
+				log = SdLog.get("Finish");
+				HttpClientPost hcp3 = new HttpClientPost();
+				hcp3.execute(log);
+			}
 			break;
 		}
 		return false;
@@ -651,7 +713,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				
 				// 表示するモデルidをセット
 				markerModelId = data.getIntExtra(RESULT_SELECT_ITEM_ID, 0);
-				if(sdLogflag) SdLog.put("selectFixationModel," + modelNames[markerModelId]);
+//				if(sdLogflag) SdLog.put("selectFixationModel," + modelNames[markerModelId]);
 				
 				Log.d(TAG,"getItemId " + data.getIntExtra(RESULT_SELECT_ITEM_ID, 0));
 			}

@@ -1,4 +1,4 @@
-package jp.androidgroup.nyartoolkit;
+package org.takanolab.ar.log;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,11 +24,9 @@ public  class SdLog {
 		if (!enable) return;
 		Date now = new Date();
 		BufferedWriter bw = null;
-//		StackTraceElement[] ste = (new Throwable()).getStackTrace();
-///		text = ste[1].getMethodName()
-//			   + "("
-//			 	+ ste[1].getFileName() + ":" + ste[1].getLineNumber()
-//			   + ") " + text;
+		String src = (now.getYear()+1900)+"/"+(now.getMonth()+1)+"/"+now.getDate()+","
+				+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+","+text+"\n";
+		
 		try {
 			try {
 				mkdir_p(LOGDIR);
@@ -45,10 +43,7 @@ public  class SdLog {
 			e.printStackTrace();
 		}
 		try {
-			bw.append((now.getYear()+1900)+"/"+(now.getMonth()+1)+"/"+now.getDate()+","
-					+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+","+text+"\n");
-//			Log.e("log",(now.getYear()+1900)+"/"+(now.getMonth()+1)+"/"+now.getDate()
-//					+" "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+"\t"+text);
+			bw.append(src);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -58,6 +53,44 @@ public  class SdLog {
 			e.printStackTrace();
 		}
 		bw = null;
+	}
+	
+	static public String get(String text) {
+//		if (!enable) return;
+		Date now = new Date();
+		BufferedWriter bw = null;
+//		String src = (now.getYear()+1900)+"/"+(now.getMonth()+1)+"/"+now.getDate()+","
+//				+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+","+text+"\n";
+		String src = (now.getYear()+1900)+"/"+(now.getMonth()+1)+"/"+now.getDate()+","
+				+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+","+text;
+		
+		try {
+			try {
+				mkdir_p(LOGDIR);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return "Not ";
+			}
+			FileOutputStream file = new FileOutputStream(SDFILE, true);
+			bw = new BufferedWriter(new OutputStreamWriter(
+					file, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		try {
+			bw.append(src);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		bw = null;
+		return src;
 	}
 	
 	public static boolean mkdir_p(File dir) throws IOException {
