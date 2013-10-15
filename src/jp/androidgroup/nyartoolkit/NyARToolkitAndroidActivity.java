@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.Buffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -21,9 +22,8 @@ import jp.androidgroup.nyartoolkit.utils.gl.AndGLView;
 import jp.nyatla.nyartoolkit.core.NyARException;
 import jp.nyatla.nyartoolkit.markersystem.NyARMarkerSystemConfig;
 
-import org.takanolab.ar.log.HttpClientPost;
-import org.takanolab.ar.log.HttpClientPost2;
-import org.takanolab.ar.log.SdLog;
+import org.takanolab.ar.log.LogHttpClientPost;
+import org.takanolab.ar.log.LogWriter;
 import org.takanolab.kGLModel.KGLException;
 import org.takanolab.kGLModel.KGLModelData;
 
@@ -60,7 +60,7 @@ import android.widget.Toast;
 public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.IGLFunctionEvent
 {
 	// Log認識用タグ
-	private static String TAG = "NyARToolkitAndroid";
+	private static String TAG = "EcoAR";
 	// ActivityResultの認識コード
 	private static final int FIXATION_MODEL= 1;
 	// Resultキー
@@ -73,7 +73,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	Bitmap GLBitmap;
 
 	// マーカー&モデルの数
-	private static final int PAT_MAX = 36;
+	private static final int PAT_MAX = 10;
 	// 使用するモデルのパス
 	private String modelPath = Environment.getExternalStorageDirectory().getPath() + "/3DModelData/";
 	// ユーザが選択したモデルidを受け取る変数
@@ -137,7 +137,15 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	//HTTP通信で送信する操作履歴用
 	String log = null;
 	//--------------------------------------------
-
+	
+	
+	//--------------------------------------------
+	//推薦ListView
+	ListView Recommendlists;
+	ArrayAdapter<String> adapter;
+	ArrayList<String> recommendModelname;
+	SetRecommendListView rlv = new SetRecommendListView();
+	//--------------------------------------------
 	
 	// for model renderer
 	private static final int CROP_MSG = 1;
@@ -190,24 +198,31 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		fr.addView(this._glv, 0,new LayoutParams(screen_w,screen_h));
 		long end = System.currentTimeMillis();
 		
-		
-		
 		//
-		// 右側に情報推薦用View(ListLayout)を表示します（未実装）
+		// 右側に情報推薦用View(ListLayout)を表示します
 		//
-		String[] str = {"Papilio Maackii","Ladybug","Bald Eagle","Grayling","Steller's Jay"};
+		
+		recommendModelname = new ArrayList<String>();
+		recommendModelname.clear();
+		recommendModelname.add("Papilio Maackii");
+		recommendModelname.add("Steller's Jay");
+		recommendModelname.add("Ladybug");
+		recommendModelname.add("Bald Eagle");
+		recommendModelname.add("Grayling");
+		
 		// ListViewを作成
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.list, str); 
-		ListView lists = new ListView(this);
+		adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelname); 
 		
 		// 背景色を選択
-		lists.setBackgroundColor(Color.BLACK);
-		lists.setAdapter(adapter);
+//		lists.setBackgroundColor(Color.BLACK);
+		
+		Recommendlists = new ListView(this);
+		Recommendlists.setAdapter(adapter);
 
 		// FrameLayout作成
 		FrameLayout side= new FrameLayout(this);
 		// Viewを追加
-		side.addView(lists, 0 , new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.MATCH_PARENT));
+		side.addView(Recommendlists, 0 , new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.MATCH_PARENT));
 		// Viewの位置を変更
 		side.setPadding((screen_w - (screen_w / 4)), 0, 0, 0);
 		// Layoutを追加
@@ -215,9 +230,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		//
 		// ここまで
 		//
-		
-		
-		
+			
 		Log.d(TAG,"onStart Time " + (end - start) + "ms");
 	}
 
@@ -256,10 +269,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				}
 			}
 
-			// モデルの名前
-//			modelNames[0] = "Brilliant_Blue_Discus_Fish.mqo";
-//			modelNames[1] = "miku01.mqo";
-			
+			// モデルの登録
 			setModelName();
 
 			for(int i=0;i<model_data.length;i++){
@@ -274,16 +284,16 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				//現在のモード
 				switch(uiMode){
 				case 0: 
-					SdLog.put("Start3DCGMode");
-					log = SdLog.get("Start3DCGMode");
-					HttpClientPost hcp = new HttpClientPost();
-					hcp.execute(log);
+					LogWriter.sdput("Start3DCGMode");
+					log = LogWriter.get("Start3DCGMode");
+					LogHttpClientPost lhcp = new LogHttpClientPost();
+					lhcp.execute(log);
 					break;
 				case 1:
-					SdLog.put("StartFreeMode");
-					log = SdLog.get("StartFreeMode");
-					HttpClientPost hcp2 = new HttpClientPost();
-					hcp2.execute(log);
+					LogWriter.sdput("StartFreeMode");
+					log = LogWriter.get("StartFreeMode");
+					LogHttpClientPost lhcp2 = new LogHttpClientPost();
+					lhcp2.execute(log);
 					break;
 				}
 			}
@@ -321,36 +331,36 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				modelNames[7] = "hoary_marmot";
 				modelNames[8] = "canada_lynx";
 				modelNames[9] = "moose";
-				modelNames[10] = "mountain_goat";
-				modelNames[11] = "desert_tortoise";
-				modelNames[12] = "gray_wolf";
-				modelNames[13] = "rattlesnake";
-				//Bird Model
-				modelNames[14] = "bald_eagle";
-				modelNames[15] = "baltimore_oriole";
-				modelNames[16] = "black_backed_woodpecker";
-				modelNames[17] = "broad_winged_hawk";
-				modelNames[18] = "great_horned_owl";
-				modelNames[19] = "grus_americana";
-				modelNames[20] = "spruce_grouse";
-				modelNames[21] = "steller_s_jay";
-				modelNames[22] = "virginia_rail";
-				//Fish Model
-				modelNames[23] = "brilliant_blue_discus_fish";
-				modelNames[24] = "brown_trout";
-				modelNames[25] = "grayling";
-				modelNames[26] = "mountain_white_fish";
-				modelNames[27] = "western_longnose_sucker";
-				//Insect Model
-				modelNames[28] = "ephemeroptera";
-				modelNames[29] = "ladybug";
-				modelNames[30] = "leptinotarsa_decemlineata";
-				modelNames[31] = "melanoplus_spretus";
-				modelNames[32] = "sympetrum_danae";
-				//Plant Model
-				modelNames[33] = "campanula_rotundifolia";
-				modelNames[34] = "machingun_lily";
-				modelNames[35] = "pinus_banksiana";
+//				modelNames[10] = "mountain_goat";
+//				modelNames[11] = "desert_tortoise";
+//				modelNames[12] = "gray_wolf";
+//				modelNames[13] = "rattlesnake";
+//				//Bird Model
+//				modelNames[14] = "bald_eagle";
+//				modelNames[15] = "baltimore_oriole";
+//				modelNames[16] = "black_backed_woodpecker";
+//				modelNames[17] = "broad_winged_hawk";
+//				modelNames[18] = "great_horned_owl";
+//				modelNames[19] = "grus_americana";
+//				modelNames[20] = "spruce_grouse";
+//				modelNames[21] = "steller_s_jay";
+//				modelNames[22] = "virginia_rail";
+//				//Fish Model
+//				modelNames[23] = "brilliant_blue_discus_fish";
+//				modelNames[24] = "brown_trout";
+//				modelNames[25] = "grayling";
+//				modelNames[26] = "mountain_white_fish";
+//				modelNames[27] = "western_longnose_sucker";
+//				//Insect Model
+//				modelNames[28] = "ephemeroptera";
+//				modelNames[29] = "ladybug";
+//				modelNames[30] = "leptinotarsa_decemlineata";
+//				modelNames[31] = "melanoplus_spretus";
+//				modelNames[32] = "sympetrum_danae";
+//				//Plant Model
+//				modelNames[33] = "campanula_rotundifolia";
+//				modelNames[34] = "machingun_lily";
+//				modelNames[35] = "pinus_banksiana";
 	}
 
 	AndGLDebugDump _debug=null;
@@ -414,20 +424,19 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	 */
 	private void drawModelData(GL10 gl,int id) throws NyARException{
 		
-		System.out.println("drawmodel1  マーカーid : " + id);
+//		System.out.println("drawmodel1  マーカーid : " + id);
 		
 		if(model_data[id] == null){
 			Log.d(TAG,modelNames[id] + " is NULL Model Create!");
 			model_data[id] = getCreateModel(gl, id);
 			
-			//IDに一致したマーカー上にモデルが描写されたことをSdLogに出力
+			//IDに一致したマーカー上にモデルが描写されたことをLogに出力
 			if(sdLogflag){
-				SdLog.put("DrawModel," + modelNames[id]);
-				log = SdLog.get("DrawModel," + modelNames[id]);
-				HttpClientPost hcp = new HttpClientPost();
-				hcp.execute(log);
+				LogWriter.sdput("DrawModel," + modelNames[id]);
+				log = LogWriter.get("DrawModel," + modelNames[id]);
+				LogHttpClientPost lhcp = new LogHttpClientPost();
+				lhcp.execute(log);
 			}
-			
 //			return;
 		}else{
 //			Log.d(TAG,modelNames[id] + "is Not Null Texture Reload");
@@ -449,7 +458,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		model_data[id].disables(gl);
 		
 		markerModelId = id;
-		System.out.println("drawmodel2 マーカーid : " + markerModelId);
+//		System.out.println("drawmodel2 マーカーid : " + markerModelId);
 	}
 
 
@@ -464,7 +473,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	private void drawModelDataFixation(GL10 gl,int id) throws NyARException{
 		TAG = "drawModelDataFixation";
 		
-		System.out.println("drawmodelfixation1 マーカーid : " + id);
+//		System.out.println("drawmodelfixation1 マーカーid : " + id);
 		
 		if(model_data[id] == null){
 			Log.d(TAG,modelNames[id] + " is NULL Model Create!");
@@ -472,10 +481,11 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			
 			//IDに一致したマーカー上にモデルが描写されたことをSdLogに出力
 			if(sdLogflag){
-				SdLog.put("selectFixationModel," + modelNames[markerModelId]);
-				log = SdLog.get("selectFixationModel," + modelNames[markerModelId]);
-				HttpClientPost hcp = new HttpClientPost();
-				hcp.execute(log);
+				LogWriter.sdput("selectFixationModel," + modelNames[markerModelId]);
+				log = LogWriter.get("selectFixationModel," + modelNames[markerModelId]);
+				LogHttpClientPost lhcp = new LogHttpClientPost();
+				lhcp.execute(log);
+				
 			}
 		
 //			return;
@@ -506,7 +516,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		model_data[id].disables(gl);
 		
 		markerModelId = id;
-		System.out.println("drawmodelfixation2 マーカーid : " + markerModelId);
+//		System.out.println("drawmodelfixation2 マーカーid : " + markerModelId);
 	}
 
 	@Override
@@ -516,10 +526,11 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		menu.add(Menu.NONE, 1, Menu.NONE, "Rotate");
 		menu.add(Menu.NONE, 2, Menu.NONE, "Scale");
 		menu.add(Menu.NONE, 3, Menu.NONE, "ScreenCapture");
-		menu.add(Menu.NONE, 4, Menu.NONE, "FreeMode");
-		menu.add(Menu.NONE, 5, Menu.NONE, "QuestMode");
-		menu.add(Menu.NONE, 6, Menu.NONE, "SearchMode");		
-		menu.add(Menu.NONE, 7, Menu.NONE, "Exit");
+		menu.add(Menu.NONE, 4, Menu.NONE, "Recommend");
+		menu.add(Menu.NONE, 5, Menu.NONE, "FreeMode");
+		menu.add(Menu.NONE, 6, Menu.NONE, "QuestMode");
+		menu.add(Menu.NONE, 7, Menu.NONE, "SearchMode");		
+		menu.add(Menu.NONE, 8, Menu.NONE, "Exit");
 
 		return true;
 	}
@@ -543,10 +554,10 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			manipulationMode = 0;
 			count_Position++;
 			if(sdLogflag){
-				SdLog.put("Position," + modelNames[markerModelId]);
-				log = SdLog.get("Position," + modelNames[markerModelId]);
-				HttpClientPost hcp = new HttpClientPost();
-				hcp.execute(log);
+				LogWriter.sdput("Position," + modelNames[markerModelId]);
+				log = LogWriter.get("Position," + modelNames[markerModelId]);
+				LogHttpClientPost lhcp = new LogHttpClientPost();
+				lhcp.execute(log);
 			}
 			return true;
 
@@ -554,10 +565,10 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			manipulationMode = 1;
 			count_Rotate++;
 			if(sdLogflag){
-				SdLog.put("Rotate," + modelNames[markerModelId]);
-				log = SdLog.get("Rotate," + modelNames[markerModelId]);
-				HttpClientPost hcp = new HttpClientPost();
-				hcp.execute(log);
+				LogWriter.sdput("Rotate," + modelNames[markerModelId]);
+				log = LogWriter.get("Rotate," + modelNames[markerModelId]);
+				LogHttpClientPost lhcp = new LogHttpClientPost();
+				lhcp.execute(log);
 			}
 			return true;
 
@@ -565,10 +576,10 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			manipulationMode = 2;
 			count_Scale++;
 			if(sdLogflag){
-				SdLog.put("Scale," + modelNames[markerModelId]);
-				log = SdLog.get("Scale," + modelNames[markerModelId]);
-				HttpClientPost hcp = new HttpClientPost();
-				hcp.execute(log);
+				LogWriter.sdput("Scale," + modelNames[markerModelId]);
+				log = LogWriter.get("Scale," + modelNames[markerModelId]);
+				LogHttpClientPost lhcp = new LogHttpClientPost();
+				lhcp.execute(log);
 			}
 			return true;
 			
@@ -576,30 +587,51 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			Shot();
 			count_ScreenCapture++;
 			if(sdLogflag){
-				SdLog.put("ScreenCapture," + modelNames[markerModelId]);
-				log = SdLog.get("ScreenCapture," + modelNames[markerModelId]);
-				HttpClientPost hcp = new HttpClientPost();
-				hcp.execute(log);
+				LogWriter.sdput("ScreenCapture," + modelNames[markerModelId]);
+				log = LogWriter.get("ScreenCapture," + modelNames[markerModelId]);
+				LogHttpClientPost lhcp = new LogHttpClientPost();
+				lhcp.execute(log);
 			}
 			return true;
-			
+		
 		case 4:
+			//
+			//RecommendListViewの更新
+			//
+			
+			//現在参照しているmodelnameを送信
+//			RecommendHttpClient rhc = new RecommendHttpClient();
+//			rhc.execute(modelNames[markerModelId]);
+			
+			//これまで表示していたコンテンツをクリア
+			recommendModelname.clear();
+			Recommendlists.invalidateViews();
+			//新しく関連コンテンツを追加
+			rlv.SetListViewContents(recommendModelname);
+//			adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelname);
+//			Recommendlists = new ListView(this);
+//			Recommendlists.setAdapter(adapter);
+			//ListViewを更新
+			adapter.notifyDataSetChanged();
+			return true;	
+			
+		case 5:
 			if(freemodeflag){
 				freemodeflag = false;
 				// モードが変わった
 				uiMode = 0;
 				if(sdLogflag){
-					SdLog.put("Start3DCGMode");
-					log = SdLog.get("Start3DCGMode");
-					HttpClientPost hcp = new HttpClientPost();
-					hcp.execute(log);
+					LogWriter.sdput("Start3DCGMode");
+					log = LogWriter.get("Start3DCGMode");
+					LogHttpClientPost lhcp = new LogHttpClientPost();
+					lhcp.execute(log);
 				}
 			}else{
 				selectFixationModel();
 			}
 			return true;
 			
-		case 5:
+		case 6:
 			Intent questintent = new Intent(jp.androidgroup.nyartoolkit.NyARToolkitAndroidActivity.this,com.paar.ch9.MainActivity.class);
 			startActivity(questintent);
 			//カメラの停止
@@ -609,29 +641,29 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				// TODO 自動生成された catch ブロック
 				e.printStackTrace();
 			}
-			SdLog.put("StartQuestMode");
-			log = SdLog.get("StartQuestMode");
-			HttpClientPost hcp = new HttpClientPost();
-			hcp.execute(log);
+			LogWriter.sdput("StartQuestMode");
+			log = LogWriter.get("StartQuestMode");
+			LogHttpClientPost lhcp = new LogHttpClientPost();
+			lhcp.execute(log);
 			return true;
 		
-		case 6:
+		case 7:
 			// change to search activity
             Intent searchintent = new Intent(jp.androidgroup.nyartoolkit.NyARToolkitAndroidActivity.this, org.takanolab.ar.search.SearchActivity.class);
             startActivity(searchintent);
-            SdLog.put("StartSearchMode");
-            log = SdLog.get("StartSearchMode");
-			HttpClientPost hcp2 = new HttpClientPost();
-			hcp2.execute(log);
+            LogWriter.sdput("StartSearchMode");
+            log = LogWriter.get("StartSearchMode");
+			LogHttpClientPost lhcp2 = new LogHttpClientPost();
+			lhcp2.execute(log);
             return true;
 			
-		case 7:
+		case 8:
 			finish();
 			if(sdLogflag){
-				SdLog.put("Finish");
-				log = SdLog.get("Finish");
-				HttpClientPost hcp3 = new HttpClientPost();
-				hcp3.execute(log);
+				LogWriter.sdput("Finish");
+				log = LogWriter.get("Finish");
+				LogHttpClientPost lhcp3 = new LogHttpClientPost();
+				lhcp3.execute(log);
 			}
 			break;
 		}

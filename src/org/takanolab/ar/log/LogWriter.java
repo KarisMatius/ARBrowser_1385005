@@ -12,15 +12,15 @@ import java.util.Date;
 import android.os.Environment;
 import android.util.Log;
 
-public  class SdLog {
+public  class LogWriter {
 	private final static String LOGDIR = Environment.getExternalStorageDirectory().getPath() + "/SdLog/";
 	private final static String SDFILE = LOGDIR+"log.txt";
 	private static boolean enable = true;
 	static public void put(int text) {
-		put(String.valueOf(text));
+		sdput(String.valueOf(text));
 	}
 	
-	static public void put(String text) {
+	static public void sdput(String text) {
 		if (!enable) return;
 		Date now = new Date();
 		BufferedWriter bw = null;
@@ -58,38 +58,10 @@ public  class SdLog {
 	static public String get(String text) {
 //		if (!enable) return;
 		Date now = new Date();
-		BufferedWriter bw = null;
-//		String src = (now.getYear()+1900)+"/"+(now.getMonth()+1)+"/"+now.getDate()+","
-//				+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+","+text+"\n";
+		
 		String src = (now.getYear()+1900)+"/"+(now.getMonth()+1)+"/"+now.getDate()+","
 				+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()+","+text;
 		
-		try {
-			try {
-				mkdir_p(LOGDIR);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return "Not ";
-			}
-			FileOutputStream file = new FileOutputStream(SDFILE, true);
-			bw = new BufferedWriter(new OutputStreamWriter(
-					file, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		try {
-			bw.append(src);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			bw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		bw = null;
 		return src;
 	}
 	

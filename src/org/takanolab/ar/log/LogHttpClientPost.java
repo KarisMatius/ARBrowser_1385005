@@ -16,7 +16,7 @@ import org.apache.http.message.BasicNameValuePair;
 import android.os.AsyncTask;
 import android.util.Log;
 
-public class HttpClientPost extends AsyncTask<String, Void, Integer> {
+public class LogHttpClientPost extends AsyncTask<String, Void, Integer> {
 	
 	@Override
 	protected Integer doInBackground(String... contents) {

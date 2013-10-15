@@ -17,7 +17,7 @@ import jp.androidgroup.nyartoolkit.utils.camera.CameraPreview;
 import org.apache.lucene.analysis.PorterStemmer;
 import org.takanolab.ar.db.MyDbAdapter;
 import org.takanolab.ar.db.StopwordsHelper;
-import org.takanolab.ar.log.SdLog;
+import org.takanolab.ar.log.LogWriter;
 
 import android.content.Intent;
 import android.hardware.Camera;
@@ -119,7 +119,7 @@ public class MainActivity extends AugmentedActivity {
             	// change to search activity
                 intent = new Intent(MainActivity.this, org.takanolab.ar.search.SearchActivity.class);
                 startActivity(intent);
-                SdLog.put("StartSearchMode");
+                LogWriter.sdput("StartSearchMode");
                 return true;
                 
             case R.id.exit:
@@ -156,7 +156,7 @@ public class MainActivity extends AugmentedActivity {
 //        Toast t = Toast.makeText(getApplicationContext(), marker.getName(), Toast.LENGTH_SHORT);
 		Toast t = Toast.makeText(getApplicationContext(), marker.getDescription(), Toast.LENGTH_SHORT);
 		
-		SdLog.put("AnnotationTouch," + marker.name);
+		LogWriter.sdput("AnnotationTouch," + marker.name);
 		
         t.setGravity(Gravity.CENTER, 0, 0);
         t.show();

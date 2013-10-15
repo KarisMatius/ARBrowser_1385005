@@ -3,7 +3,7 @@ package org.takanolab.ar.search;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.takanolab.ar.log.SdLog;
+import org.takanolab.ar.log.LogWriter;
 
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -92,14 +92,14 @@ public static String[] mTitles = {
             	// change to 3dcg activity
                 intent = new Intent(SearchActivity.this, NyARToolkitAndroidActivity.class);
                 startActivity(intent);
-    			SdLog.put("Start3DCGMode");
+    			LogWriter.sdput("Start3DCGMode");
                 break;
                 
             case R.id.search_to_quest:
             	// change to quest activity
                 intent = new Intent(SearchActivity.this, MainActivity.class);
                 startActivity(intent);
-    			SdLog.put("StartQuestMode");
+    			LogWriter.sdput("StartQuestMode");
                 break;
                 
             case R.id.exit:
