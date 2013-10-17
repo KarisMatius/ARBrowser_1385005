@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import jp.androidgroup.nyartoolkit.HttpGetClient.AsyncTaskCallback;
 import jp.androidgroup.nyartoolkit.markersystem.NyARAndMarkerSystem;
 import jp.androidgroup.nyartoolkit.markersystem.NyARAndSensor;
 import jp.androidgroup.nyartoolkit.sketch.AndSketch;
@@ -143,8 +144,9 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	//推薦ListView
 	ListView Recommendlists;
 	ArrayAdapter<String> adapter;
-	ArrayList<String> recommendModelname;
-	SetRecommendListView rlv = new SetRecommendListView();
+	ArrayList<String> recommendModelname = new ArrayList<String>();;
+	SetRecommendListView rlv = new SetRecommendListView("ranking");
+	String[] modelnames;
 	//--------------------------------------------
 	
 	// for model renderer
@@ -199,10 +201,8 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		long end = System.currentTimeMillis();
 		
 		//
-		// 右側に情報推薦用View(ListLayout)を表示します
+		// 右側に情報推薦用View(ListLayout)を表示します（未実装）
 		//
-		
-		recommendModelname = new ArrayList<String>();
 		recommendModelname.clear();
 		recommendModelname.add("Papilio Maackii");
 		recommendModelname.add("Steller's Jay");
@@ -272,7 +272,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			// モデルの登録
 			setModelName();
 
-			for(int i=0;i<model_data.length;i++){
+			for(int i=0; i<model_data.length; i++){
 				if(model_data[i] == null) {
 				}else{
 					model_data[i].reloadTexture(gl);
@@ -424,7 +424,9 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	 */
 	private void drawModelData(GL10 gl,int id) throws NyARException{
 		
-//		System.out.println("drawmodel1  マーカーid : " + id);
+		//System.out.println("drawmodel1  マーカーid : " + id);
+		RecommendHttpClient rhc = new RecommendHttpClient();
+		rhc.execute(modelNames[markerModelId]);
 		
 		if(model_data[id] == null){
 			Log.d(TAG,modelNames[id] + " is NULL Model Create!");
@@ -473,7 +475,9 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	private void drawModelDataFixation(GL10 gl,int id) throws NyARException{
 		TAG = "drawModelDataFixation";
 		
-//		System.out.println("drawmodelfixation1 マーカーid : " + id);
+		//System.out.println("drawmodelfixation1 マーカーid : " + id);
+		RecommendHttpClient rhc = new RecommendHttpClient();
+		rhc.execute(modelNames[markerModelId]);
 		
 		if(model_data[id] == null){
 			Log.d(TAG,modelNames[id] + " is NULL Model Create!");
@@ -485,7 +489,6 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				log = LogWriter.get("selectFixationModel," + modelNames[markerModelId]);
 				LogHttpClientPost lhcp = new LogHttpClientPost();
 				lhcp.execute(log);
-				
 			}
 		
 //			return;
@@ -593,27 +596,35 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				lhcp.execute(log);
 			}
 			return true;
-		
+			
 		case 4:
 			//
 			//RecommendListViewの更新
-			//
-			
-			//現在参照しているmodelnameを送信
-//			RecommendHttpClient rhc = new RecommendHttpClient();
-//			rhc.execute(modelNames[markerModelId]);
+			//		
 			
 			//これまで表示していたコンテンツをクリア
 			recommendModelname.clear();
 			Recommendlists.invalidateViews();
-			//新しく関連コンテンツを追加
-			rlv.SetListViewContents(recommendModelname);
-//			adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelname);
-//			Recommendlists = new ListView(this);
-//			Recommendlists.setAdapter(adapter);
-			//ListViewを更新
-			adapter.notifyDataSetChanged();
-			return true;	
+			
+			//サーバから関連コンテンツを取得
+			HttpGetClient hgc = new HttpGetClient(new AsyncTaskCallback() {
+		        public void preExecute() {
+		            //だいたいの場合ダイアログの表示などを行う
+		        }
+		        public void postExecute(String result) {
+		            //AsyncTaskの結果を受け取り「，」で分割し配列に格納
+		        	modelnames = result.split(",", 0);
+		        	
+		        	//新しく関連コンテンツを追加
+		        	for(int i=0; i<5; i++){
+		        		recommendModelname.add(modelnames[i]);
+		        	}
+		        	//ListViewを更新
+					adapter.notifyDataSetChanged();
+		        }
+			});
+			hgc.execute("ranking");
+			return true;
 			
 		case 5:
 			if(freemodeflag){
