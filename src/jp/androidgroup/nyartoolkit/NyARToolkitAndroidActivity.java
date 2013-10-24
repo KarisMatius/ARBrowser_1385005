@@ -7,6 +7,8 @@ import java.net.URI;
 import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -47,6 +49,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListView;
@@ -86,6 +89,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	// ------------- Model ---------------------------
 	// modelの操作フラグ
 	int manipulationMode = 0;
+	int markerModelId = 0;
 	// Modelの制御
 	float lastX = 0;
 	float lastY = 0;
@@ -134,7 +138,6 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	int count_Scale = 0;
 	int count_ScreenCapture = 0;
 	int uiMode = 0;
-	int markerModelId = 0;
 	//HTTP通信で送信する操作履歴用
 	String log = null;
 	//--------------------------------------------
@@ -142,11 +145,16 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	
 	//--------------------------------------------
 	//推薦ListView
+	//アイテムの親リスト
+//	List<Map<String, String>> recommendList = new ArrayList<Map<String, String>>();
+//	// 各アイテムのサブアイテムのリスト
+//	List<List<Map<String, String>>> subrecommendList = new ArrayList<List<Map<String, String>>>();
+	
 	ListView Recommendlists;
 	ArrayAdapter<String> adapter;
-	ArrayList<String> recommendModelname = new ArrayList<String>();;
+	ArrayList<String> recommendModelnames = new ArrayList<String>();
 	SetRecommendListView rlv = new SetRecommendListView("ranking");
-	String[] modelnames;
+	String[] recommendModelname;
 	//--------------------------------------------
 	
 	// for model renderer
@@ -203,15 +211,18 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		//
 		// 右側に情報推薦用View(ListLayout)を表示します（未実装）
 		//
-		recommendModelname.clear();
-		recommendModelname.add("Papilio Maackii");
-		recommendModelname.add("Steller's Jay");
-		recommendModelname.add("Ladybug");
-		recommendModelname.add("Bald Eagle");
-		recommendModelname.add("Grayling");
+		
+		
+		
+		recommendModelnames.clear();
+		recommendModelnames.add("Papilio Maackii");
+		recommendModelnames.add("Steller's Jay");
+		recommendModelnames.add("Ladybug");
+		recommendModelnames.add("Bald Eagle");
+		recommendModelnames.add("Grayling");
 		
 		// ListViewを作成
-		adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelname); 
+		adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelnames); 
 		
 		// 背景色を選択
 //		lists.setBackgroundColor(Color.BLACK);
@@ -227,6 +238,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		side.setPadding((screen_w - (screen_w / 4)), 0, 0, 0);
 		// Layoutを追加
 		addContentView(side, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.FILL_PARENT));
+		
 		//
 		// ここまで
 		//
@@ -425,6 +437,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	private void drawModelData(GL10 gl,int id) throws NyARException{
 		
 		//System.out.println("drawmodel1  マーカーid : " + id);
+		//現在参照しているmodelのnameをサーバに送信
 		RecommendHttpClient rhc = new RecommendHttpClient();
 		rhc.execute(modelNames[markerModelId]);
 		
@@ -476,6 +489,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		TAG = "drawModelDataFixation";
 		
 		//System.out.println("drawmodelfixation1 マーカーid : " + id);
+		//現在参照しているmodelのnameをサーバに送信
 		RecommendHttpClient rhc = new RecommendHttpClient();
 		rhc.execute(modelNames[markerModelId]);
 		
@@ -541,9 +555,9 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if(freemodeflag){
-			menu.findItem(4).setTitle("Clear");
+			menu.findItem(5).setTitle("Clear");
 		}else{
-			menu.findItem(4).setTitle("FreeMode");
+			menu.findItem(5).setTitle("FreeMode");
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -603,7 +617,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			//		
 			
 			//これまで表示していたコンテンツをクリア
-			recommendModelname.clear();
+			recommendModelnames.clear();
 			Recommendlists.invalidateViews();
 			
 			//サーバから関連コンテンツを取得
@@ -613,11 +627,11 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		        }
 		        public void postExecute(String result) {
 		            //AsyncTaskの結果を受け取り「，」で分割し配列に格納
-		        	modelnames = result.split(",", 0);
+		        	recommendModelname = result.split(",", 0);
 		        	
 		        	//新しく関連コンテンツを追加
 		        	for(int i=0; i<5; i++){
-		        		recommendModelname.add(modelnames[i]);
+		        		recommendModelnames.add(recommendModelname[i]);
 		        	}
 		        	//ListViewを更新
 					adapter.notifyDataSetChanged();

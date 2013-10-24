@@ -23,13 +23,13 @@ public class HttpGetClient extends AsyncTask<String, String, String>  {
 	private AsyncTaskCallback callback = null;
 	String _url;
 	
+	//Callbackのinterface
 	public interface AsyncTaskCallback {
         void preExecute();
         void postExecute(String result);
     }
 
 	public HttpGetClient(AsyncTaskCallback atc){
-//		mActivity = activity;
 		this.callback = atc;
 	}
 	
@@ -66,9 +66,7 @@ public class HttpGetClient extends AsyncTask<String, String, String>  {
 				if(size <= 0)
 					break;
 				recommendModelname += new String(line);
-//				System.out.println("recommendModelname = " + recommendModelname);
 			}
-//			// HTMLソースを表示
 //			httpget_text.setText(recommendModelname);
 		} catch(Exception e) {
 //			recommendModelname.setText(e.toString());
@@ -81,14 +79,12 @@ public class HttpGetClient extends AsyncTask<String, String, String>  {
 			} catch (Exception e) {}
 		}
 		return recommendModelname;
-//		return result;
 	}
 	
 	@Override
 	protected void onPostExecute(String recommendModelname) {
 		// TODO 自動生成されたメソッド・スタブ
 		super.onPostExecute(recommendModelname);
-//		mActivity.OnCallback(recommendModelname);
 		callback.postExecute(recommendModelname);
 	}
 }

@@ -21,7 +21,6 @@ public class RecommendHttpClient extends AsyncTask<String, Void, Integer> {
         System.out.println(url);
         HttpResponse res = null;
         try {
-//        	post.setEntity(new UrlEncodedFormEntity(params, "utf-8"));
             res = httpclient.execute(post);
         } catch (IOException e) {
             e.printStackTrace();
