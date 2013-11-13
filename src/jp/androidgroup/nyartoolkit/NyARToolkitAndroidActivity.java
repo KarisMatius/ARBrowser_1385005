@@ -7,6 +7,7 @@ import java.net.URI;
 import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +52,10 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -146,15 +149,25 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	//--------------------------------------------
 	//推薦ListView
 	//アイテムの親リスト
-//	List<Map<String, String>> recommendList = new ArrayList<Map<String, String>>();
-//	// 各アイテムのサブアイテムのリスト
-//	List<List<Map<String, String>>> subrecommendList = new ArrayList<List<Map<String, String>>>();
+	List<Map<String, String>> recommendList = new ArrayList<Map<String, String>>();
+	// 各アイテムのサブアイテムのリスト
+	List<List<Map<String, String>>> allsubrecommendList = new ArrayList<List<Map<String, String>>>();
+	//親リストの項目要素
+	Map<String, String> recommendItem;
 	
-	ListView Recommendlists;
-	ArrayAdapter<String> adapter;
-	ArrayList<String> recommendModelnames = new ArrayList<String>();
+	Map<String, String> subrecommendItem;
+	
+	ExpandableListView recommendListView;
+	
+	SimpleExpandableListAdapter adapter;
+	
+    ExpandableListView lv;
+	
+//	ListView Recommendlists;
+//	ArrayAdapter<String> adapter;
+//	ArrayList<String> recommendModelnames = new ArrayList<String>();
 	SetRecommendListView rlv = new SetRecommendListView("ranking");
-	String[] recommendModelname;
+	String[] recommendModelnames;
 	//--------------------------------------------
 	
 	// for model renderer
@@ -177,8 +190,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	 * onStartでは、Viewのセットアップをしてください。
 	 */
 	@Override
-	public void onStart()
-{
+	public void onStart(){
 		super.onStart();
 
 		long start = System.currentTimeMillis();
@@ -207,38 +219,90 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		this._glv=new AndGLView(this);
 		fr.addView(this._glv, 0,new LayoutParams(screen_w,screen_h));
 		long end = System.currentTimeMillis();
-		
+		Log.d("screen", "screensize : " + screen_w + " , " + screen_h);
 		//
 		// 右側に情報推薦用View(ListLayout)を表示します（未実装）
 		//
+		//初期推薦コンテンツ
+		recommendModelnames = new String[]{"Papilio Maackii", "bison", "elk", "bighorn_sheep", "moose"};
 		
-		
-		
-		recommendModelnames.clear();
-		recommendModelnames.add("Papilio Maackii");
-		recommendModelnames.add("Steller's Jay");
-		recommendModelnames.add("Ladybug");
-		recommendModelnames.add("Bald Eagle");
-		recommendModelnames.add("Grayling");
+		// 親ノードのリスト
+        List<Map<String, String>> parentList = new ArrayList<Map<String, String>>();
+        // 全体の子ノードのリスト
+        List<List<Map<String, String>>> allChildList = new ArrayList<List<Map<String, String>>>();
+ 
+        // 親ノードに表示する内容を生成
+        for (int i = 0; i < 5; i++) {
+            Map<String, String> parentData = new HashMap<String, String>();
+            parentData.put("MODELNAME", recommendModelnames[i]);
+            // 親ノードのリストに内容を格納
+            parentList.add(parentData);
+        }
+ 
+        // 子ノードに表示する文字を生成
+        for (int i = 0; i < 5; i++) {
+            // 子ノード全体用のリスト
+            List<Map<String, String>> childList = new ArrayList<Map<String, String>>();
+ 
+            // 各子ノード用データ格納
+            for (int j = 0; j < 2; j++) {
+                Map<String, String> childData = new HashMap<String, String>();
+                switch(j){
+                case 0:
+                	childData.put("MODE", "3DCG");
+                	break;
+                case 1:
+                	childData.put("MODE", "Text");
+                	break;
+                }
+                // 子ノードのリストに文字を格納
+                childList.add(childData);
+            }
+            // 全体の子ノードリストに各小ノードリストのデータを格納
+            allChildList.add(childList);
+        }
+ 
+        // アダプタを作る
+        SimpleExpandableListAdapter adapter = new SimpleExpandableListAdapter(
+                this, parentList,
+                android.R.layout.simple_expandable_list_item_1,
+                new String[] { "MODELNAME" }, new int[] { android.R.id.text1 },
+                allChildList,
+                android.R.layout.simple_expandable_list_item_2,
+                new String[] { "MODE" }, new int[] {
+                        android.R.id.text1});
+        
+        recommendListView = (ExpandableListView) findViewById(R.id.expandableListView);
+        
+        //生成した情報をセット
+        recommendListView.setAdapter(adapter);
+        
+//		recommendModelnames.clear();
+//		recommendModelname = new String[]{"Papilio Maackii", "bison", "elk", "bighorn_sheep", "moose"};
+////		recommendModelnames.add("Papilio Maackii");
+////		recommendModelnames.add("Steller's Jay");
+////		recommendModelnames.add("Ladybug");
+////		recommendModelnames.add("Bald Eagle");
+////		recommendModelnames.add("Grayling");
 		
 		// ListViewを作成
-		adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelnames); 
+//		adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelnames); 
 		
 		// 背景色を選択
 //		lists.setBackgroundColor(Color.BLACK);
 		
-		Recommendlists = new ListView(this);
-		Recommendlists.setAdapter(adapter);
+//		Recommendlists = new ListView(this);
+//		Recommendlists.setAdapter(adapter);
 
-		// FrameLayout作成
-		FrameLayout side= new FrameLayout(this);
-		// Viewを追加
-		side.addView(Recommendlists, 0 , new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.MATCH_PARENT));
-		// Viewの位置を変更
-		side.setPadding((screen_w - (screen_w / 4)), 0, 0, 0);
-		// Layoutを追加
-		addContentView(side, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.FILL_PARENT));
-		
+//		// FrameLayout作成
+//		FrameLayout side= new FrameLayout(this);
+//		// Viewを追加
+//		side.addView(recommendListView, 0 , new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.MATCH_PARENT));
+//		// Viewの位置を変更
+//		side.setPadding((screen_w - (screen_w / 4)), 0, 0, 0);
+//		// Layoutを追加
+//		addContentView(side, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.FILL_PARENT));
+        
 		//
 		// ここまで
 		//
@@ -616,28 +680,30 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 			//RecommendListViewの更新
 			//		
 			
-			//これまで表示していたコンテンツをクリア
-			recommendModelnames.clear();
-			Recommendlists.invalidateViews();
+	        recommendListView.bringToFront();
 			
-			//サーバから関連コンテンツを取得
-			HttpGetClient hgc = new HttpGetClient(new AsyncTaskCallback() {
-		        public void preExecute() {
-		            //だいたいの場合ダイアログの表示などを行う
-		        }
-		        public void postExecute(String result) {
-		            //AsyncTaskの結果を受け取り「，」で分割し配列に格納
-		        	recommendModelname = result.split(",", 0);
-		        	
-		        	//新しく関連コンテンツを追加
-		        	for(int i=0; i<5; i++){
-		        		recommendModelnames.add(recommendModelname[i]);
-		        	}
-		        	//ListViewを更新
-					adapter.notifyDataSetChanged();
-		        }
-			});
-			hgc.execute("ranking");
+			//これまで表示していたコンテンツをクリア
+//			recommendModelnames.clear();
+//			Recommendlists.invalidateViews();
+//			
+//			//サーバから関連コンテンツを取得
+//			HttpGetClient hgc = new HttpGetClient(new AsyncTaskCallback() {
+//		        public void preExecute() {
+//		            //だいたいの場合ダイアログの表示などを行う
+//		        }
+//		        public void postExecute(String result) {
+//		            //AsyncTaskの結果を受け取り「，」で分割し配列に格納
+//		        	recommendModelname = result.split(",", 0);
+//		        	
+//		        	//新しく関連コンテンツを追加
+//		        	for(int i=0; i<5; i++){
+//		        		recommendModelnames.add(recommendModelname[i]);
+//		        	}
+//		        	//ListViewを更新
+//					adapter.notifyDataSetChanged();
+//		        }
+//			});
+//			hgc.execute("ranking");
 			return true;
 			
 		case 5:

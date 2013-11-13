@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >    
-
-
-
     <FrameLayout
         android:id="@+id/sketchLayout"
         android:layout_width="match_parent"
@@ -13,4 +10,18 @@
 
     </FrameLayout>
 
-</LinearLayout>
+    <ExpandableListView
+        android:id="@+id/expandableListView"
+        android:layout_width="150dp"
+        android:layout_height="200dp"
+        android:layout_gravity="right"
+        android:height="6dp"
+        android:minHeight="?android:attr/listPreferredItemHeightSmall"
+        android:dividerHeight="1sp"
+        android:padding="4dp"
+        android:layout_margin="6pt"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall"
+        android:textSize="8sp" >
+
+    </ExpandableListView>
+</FrameLayout>
