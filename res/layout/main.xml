@@ -13,7 +13,7 @@
     <ExpandableListView
         android:id="@+id/expandableListView"
         android:layout_width="150dp"
-        android:layout_height="200dp"
+        android:layout_height="300dp"
         android:layout_gravity="right"
         android:height="6dp"
         android:minHeight="?android:attr/listPreferredItemHeightSmall"

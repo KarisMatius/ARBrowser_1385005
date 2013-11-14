@@ -52,7 +52,9 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.SimpleExpandableListAdapter;
@@ -220,9 +222,11 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		fr.addView(this._glv, 0,new LayoutParams(screen_w,screen_h));
 		long end = System.currentTimeMillis();
 		Log.d("screen", "screensize : " + screen_w + " , " + screen_h);
+		
 		//
 		// 右側に情報推薦用View(ListLayout)を表示します（未実装）
 		//
+		
 		//初期推薦コンテンツ
 		recommendModelnames = new String[]{"Papilio Maackii", "bison", "elk", "bighorn_sheep", "moose"};
 		
@@ -277,37 +281,42 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
         //生成した情報をセット
         recommendListView.setAdapter(adapter);
         
-//		recommendModelnames.clear();
-//		recommendModelname = new String[]{"Papilio Maackii", "bison", "elk", "bighorn_sheep", "moose"};
-////		recommendModelnames.add("Papilio Maackii");
-////		recommendModelnames.add("Steller's Jay");
-////		recommendModelnames.add("Ladybug");
-////		recommendModelnames.add("Bald Eagle");
-////		recommendModelnames.add("Grayling");
-		
-		// ListViewを作成
-//		adapter = new ArrayAdapter<String>(this, R.layout.list, recommendModelnames); 
-		
-		// 背景色を選択
-//		lists.setBackgroundColor(Color.BLACK);
-		
-//		Recommendlists = new ListView(this);
-//		Recommendlists.setAdapter(adapter);
+        //子リストのクリックリスナー
+        recommendListView.setOnChildClickListener(new OnChildClickListener() {  
+    		@Override  
+    		public boolean onChildClick(ExpandableListView parent, View v,  
+    				int groupPosition, int childPosition, long id) {  
 
-//		// FrameLayout作成
-//		FrameLayout side= new FrameLayout(this);
-//		// Viewを追加
-//		side.addView(recommendListView, 0 , new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.MATCH_PARENT));
-//		// Viewの位置を変更
-//		side.setPadding((screen_w - (screen_w / 4)), 0, 0, 0);
-//		// Layoutを追加
-//		addContentView(side, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.FILL_PARENT));
+    			//アダプターから情報を取得
+    			ExpandableListAdapter adapter = parent.getExpandableListAdapter();
+    			//親リストの情報を取得
+    			Map<String, Object> groupobj = (Map<String, Object>)adapter.getGroup(groupPosition);
+    			//子リストの情報を取得
+    			Map<String, Object>childMap = (Map<String, Object>)adapter.getChild(
+    				groupPosition,
+    				childPosition
+    			);
+                //リストの情報を格納
+    			String groupitem = groupobj.get("MODELNAME").toString();
+    			String childitem = childMap.get("MODE").toString();
+    			
+    			// クリックされたアイテムを表示  
+    	    	Log.i(TAG, "Child Item Click " + "Group= " + groupitem + " C= " + childitem);
+
+    	    	return false;  
+    		}        
+    	});  
         
 		//
 		// ここまで
 		//
 			
 		Log.d(TAG,"onStart Time " + (end - start) + "ms");
+	}
+	
+	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+	    Log.i(TAG, "Child Item Click " + "G= " + groupPosition + " C= " + childPosition);
+	    return true;
 	}
 
 	NyARAndSensor _ss;
@@ -821,7 +830,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	public void setYpos(float f) {
 		this.ypos += f;
 	}
-
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
