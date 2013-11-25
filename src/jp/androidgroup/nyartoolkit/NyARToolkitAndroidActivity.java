@@ -151,7 +151,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	//--------------------------------------------
 	//推薦ListView
 	//アイテムの親リスト
-	List<Map<String, String>> recommendList = new ArrayList<Map<String, String>>();
+	List<Map<String, String>> parentrecommendList = new ArrayList<Map<String, String>>();
 	// 各アイテムのサブアイテムのリスト
 	List<List<Map<String, String>>> allsubrecommendList = new ArrayList<List<Map<String, String>>>();
 	//親リストの項目要素
@@ -227,20 +227,19 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		// 右側に情報推薦用View(ListLayout)を表示します（未実装）
 		//
 		
+		//親子リスト初期化
+		parentrecommendList.clear();
+		allsubrecommendList.clear();
+		
 		//初期推薦コンテンツ
 		recommendModelnames = new String[]{"Papilio Maackii", "bison", "elk", "bighorn_sheep", "moose"};
-		
-		// 親ノードのリスト
-        List<Map<String, String>> parentList = new ArrayList<Map<String, String>>();
-        // 全体の子ノードのリスト
-        List<List<Map<String, String>>> allChildList = new ArrayList<List<Map<String, String>>>();
  
         // 親ノードに表示する内容を生成
         for (int i = 0; i < 5; i++) {
             Map<String, String> parentData = new HashMap<String, String>();
             parentData.put("MODELNAME", recommendModelnames[i]);
             // 親ノードのリストに内容を格納
-            parentList.add(parentData);
+            parentrecommendList.add(parentData);
         }
  
         // 子ノードに表示する文字を生成
@@ -256,22 +255,22 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
                 	childData.put("MODE", "3DCG");
                 	break;
                 case 1:
-                	childData.put("MODE", "Text");
+                	childData.put("MODE", "Report");
                 	break;
                 }
                 // 子ノードのリストに文字を格納
                 childList.add(childData);
             }
             // 全体の子ノードリストに各小ノードリストのデータを格納
-            allChildList.add(childList);
+            allsubrecommendList.add(childList);
         }
  
-        // アダプタを作る
-        SimpleExpandableListAdapter adapter = new SimpleExpandableListAdapter(
-                this, parentList,
+        // アダプタの作成
+        adapter = new SimpleExpandableListAdapter(
+                this, parentrecommendList,
                 android.R.layout.simple_expandable_list_item_1,
                 new String[] { "MODELNAME" }, new int[] { android.R.id.text1 },
-                allChildList,
+                allsubrecommendList,
                 android.R.layout.simple_expandable_list_item_2,
                 new String[] { "MODE" }, new int[] {
                         android.R.id.text1});
@@ -300,9 +299,25 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
     			String groupitem = groupobj.get("MODELNAME").toString();
     			String childitem = childMap.get("MODE").toString();
     			
-    			// クリックされたアイテムを表示  
+    			// クリックされたアイテムをLogに表示  
     	    	Log.i(TAG, "Child Item Click " + "Group= " + groupitem + " C= " + childitem);
-
+    	    	
+    	    	if(childitem == "3DCG"){
+    	    		if(freemodeflag){
+    					freemodeflag = false;
+    					// モードが変わった
+    					uiMode = 0;
+    					if(sdLogflag){
+    						LogWriter.sdput("Start3DCGMode");
+    						log = LogWriter.get("Start3DCGMode");
+    						LogHttpClientPost lhcp = new LogHttpClientPost();
+    						lhcp.execute(log);
+    					}
+    				}else{
+    					selectFixationModel();
+    				}
+    	    	}
+    	    	
     	    	return false;  
     		}        
     	});  
@@ -312,11 +327,6 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		//
 			
 		Log.d(TAG,"onStart Time " + (end - start) + "ms");
-	}
-	
-	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-	    Log.i(TAG, "Child Item Click " + "G= " + groupPosition + " C= " + childPosition);
-	    return true;
 	}
 
 	NyARAndSensor _ss;
@@ -406,7 +416,7 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	//モデルの登録を行う
 	private void setModelName(){
 				//Animal Model
-				modelNames[0] = "tukue";
+				modelNames[0] = "bald_eagle";
 				modelNames[1] = "bison";
 				modelNames[2] = "bighorn_sheep";
 				modelNames[3] = "cougar";
@@ -509,7 +519,6 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	 */
 	private void drawModelData(GL10 gl,int id) throws NyARException{
 		
-		//System.out.println("drawmodel1  マーカーid : " + id);
 		//現在参照しているmodelのnameをサーバに送信
 		RecommendHttpClient rhc = new RecommendHttpClient();
 		rhc.execute(modelNames[markerModelId]);
@@ -687,32 +696,57 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		case 4:
 			//
 			//RecommendListViewの更新
-			//		
-			
-	        recommendListView.bringToFront();
+			//
 			
 			//これまで表示していたコンテンツをクリア
-//			recommendModelnames.clear();
-//			Recommendlists.invalidateViews();
-//			
-//			//サーバから関連コンテンツを取得
-//			HttpGetClient hgc = new HttpGetClient(new AsyncTaskCallback() {
-//		        public void preExecute() {
-//		            //だいたいの場合ダイアログの表示などを行う
-//		        }
-//		        public void postExecute(String result) {
-//		            //AsyncTaskの結果を受け取り「，」で分割し配列に格納
-//		        	recommendModelname = result.split(",", 0);
-//		        	
-//		        	//新しく関連コンテンツを追加
-//		        	for(int i=0; i<5; i++){
-//		        		recommendModelnames.add(recommendModelname[i]);
-//		        	}
-//		        	//ListViewを更新
-//					adapter.notifyDataSetChanged();
-//		        }
-//			});
-//			hgc.execute("ranking");
+			parentrecommendList.clear();
+			allsubrecommendList.clear();
+			recommendListView.invalidateViews();
+			
+			//サーバから関連コンテンツを取得
+			HttpGetClient hgc = new HttpGetClient(new AsyncTaskCallback() {
+		        public void preExecute() {
+		            //だいたいの場合ダイアログの表示などを行う
+		        }
+		        public void postExecute(String result) {
+		            //AsyncTaskの結果を受け取り「，」で分割し配列に格納
+		        	recommendModelnames = result.split(",", 0);
+			
+			        // 親ノードに表示する内容を生成
+			        for (int i = 0; i < 5; i++) {
+			            Map<String, String> parentData = new HashMap<String, String>();
+			            parentData.put("MODELNAME", recommendModelnames[i]);
+			            // 親ノードのリストに内容を格納
+			            parentrecommendList.add(parentData);
+			        }
+			 
+			        // 子ノードに表示する文字を生成
+			        for (int i = 0; i < 5; i++) {
+			            // 子ノード全体用のリスト
+			            List<Map<String, String>> childList = new ArrayList<Map<String, String>>();
+			 
+			            // 各子ノード用データ格納
+			            for (int j = 0; j < 2; j++) {
+			                Map<String, String> childData = new HashMap<String, String>();
+			                switch(j){
+			                case 0:
+			                	childData.put("MODE", "3DCG");
+			                	break;
+			                case 1:
+			                	childData.put("MODE", "Report");
+			                	break;
+			                }
+			                // 子ノードのリストに文字を格納
+			                childList.add(childData);
+			            }
+			            // 全体の子ノードリストに各小ノードリストのデータを格納
+			            allsubrecommendList.add(childList);
+			        }
+		        	//ListViewを更新
+					adapter.notifyDataSetChanged();
+		        }
+			});
+			hgc.execute("ranking");
 			return true;
 			
 		case 5:
