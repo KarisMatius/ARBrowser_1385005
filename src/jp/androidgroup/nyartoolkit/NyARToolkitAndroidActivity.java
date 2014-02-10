@@ -165,12 +165,10 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	
     ExpandableListView lv;
 	
-//	ListView Recommendlists;
-//	ArrayAdapter<String> adapter;
-//	ArrayList<String> recommendModelnames = new ArrayList<String>();
 	SetRecommendListView rlv = new SetRecommendListView("ranking");
 	String[] recommendModelnames;
 	//--------------------------------------------
+	
 	
 	// for model renderer
 	private static final int CROP_MSG = 1;
@@ -303,19 +301,12 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
     	    	Log.i(TAG, "Child Item Click " + "Group= " + groupitem + " C= " + childitem);
     	    	
     	    	if(childitem == "3DCG"){
-    	    		if(freemodeflag){
-    					freemodeflag = false;
-    					// モードが変わった
-    					uiMode = 0;
-    					if(sdLogflag){
-    						LogWriter.sdput("Start3DCGMode");
-    						log = LogWriter.get("Start3DCGMode");
-    						LogHttpClientPost lhcp = new LogHttpClientPost();
-    						lhcp.execute(log);
-    					}
-    				}else{
-    					selectFixationModel();
-    				}
+    	    		
+    	    		markerModelId = 1;
+    	    		// 固定表示フラグを立てる
+    				freemodeflag = true;
+    				// モードが切り替わった
+    				uiMode = 1;
     	    	}
     	    	
     	    	return false;  
@@ -416,16 +407,28 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	//モデルの登録を行う
 	private void setModelName(){
 				//Animal Model
-				modelNames[0] = "bald_eagle";
-				modelNames[1] = "bison";
-				modelNames[2] = "bighorn_sheep";
-				modelNames[3] = "cougar";
-				modelNames[4] = "coyote";
-				modelNames[5] = "elk";
-				modelNames[6] = "grizzly_bear";
-				modelNames[7] = "hoary_marmot";
-				modelNames[8] = "canada_lynx";
-				modelNames[9] = "moose";
+		
+		modelNames[0] = "brilliant_blue_discus_fish";
+		modelNames[1] = "brown_trout";
+		modelNames[2] = "grayling";
+		modelNames[3] = "mountain_white_fish";
+		modelNames[4] = "western_longnose_sucker";
+		modelNames[5] = "rainbow_trout";
+		modelNames[6] = "grizzly_bear";
+		modelNames[7] = "hoary_marmot";
+		modelNames[8] = "canada_lynx";
+		modelNames[9] = "moose";
+		
+//				modelNames[0] = "bald_eagle";
+//				modelNames[1] = "bison";
+//				modelNames[2] = "bighorn_sheep";
+//				modelNames[3] = "cougar";
+//				modelNames[4] = "coyote";
+//				modelNames[5] = "elk";
+//				modelNames[6] = "grizzly_bear";
+//				modelNames[7] = "hoary_marmot";
+//				modelNames[8] = "canada_lynx";
+//				modelNames[9] = "moose";
 //				modelNames[10] = "mountain_goat";
 //				modelNames[11] = "desert_tortoise";
 //				modelNames[12] = "gray_wolf";
@@ -880,7 +883,6 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 				// 表示するモデルidをセット
 				markerModelId = data.getIntExtra(RESULT_SELECT_ITEM_ID, 0);
 //				if(sdLogflag) SdLog.put("selectFixationModel," + modelNames[markerModelId]);
-				
 				Log.d(TAG,"getItemId " + data.getIntExtra(RESULT_SELECT_ITEM_ID, 0));
 			}
 		}
@@ -1049,4 +1051,33 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 		}
 	}
 	Exception ex=null;
+	
+	private static HashMap<String, Integer> modelidmap = new HashMap<String, Integer>() {{
+		put("canada_goose", 1);
+		put("tundra_swan", 2);
+		put("snow_goose", 3);
+		put("ross_s_goose", 4);
+		put("wood_duck", 5);
+		put("gadwall", 6);
+		put("eurasian_wigeon", 7);
+		put("american_wigeon", 8);
+		put("mallard", 9);
+		put("blue_winged_teal", 10);
+		put("cinnamon_teal", 11);
+		put("northern_shoveler", 12);
+		put("northern_pintail", 13);
+		put("green_winged_teal", 14);
+		put("canvasback", 15);
+		put("redhead", 16);
+		put("ring_necked_duck", 17);
+		put("greater_scaup", 18);
+		put("lesser_scaup", 19);
+		put("harlequin_duck", 20);
+		put("irginia_rail", 21);
+		put("broad_winged_hawk", 22);
+		put("great_horned_owl", 23);
+		put("grus_americana", 24);
+		put("baltimore_oriole", 25);
+		put("", 26);
+	}};
 }

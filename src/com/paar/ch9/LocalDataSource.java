@@ -15,7 +15,7 @@ public class LocalDataSource extends DataSource{
     private List<Marker> cachedMarkers = new ArrayList<Marker>();
     private static Bitmap[] icons = new Bitmap[3];
     
-    private static String[] descriptions = new String[3];
+    private static String[] descriptions = new String[4];
 //    private static Bitmap icon = null;
     
     public LocalDataSource(Resources res) {
@@ -43,15 +43,19 @@ public class LocalDataSource extends DataSource{
     	descriptions[0] = "The Columbian Ground Squirrel is the most commonly seen animal in the park during the summer.";
     	descriptions[1] = "Hoary Marmots are colonial animals that live in the alpine zone from 6,800 to 8,000 feet.";
     	descriptions[2] = "Elk are light brown with dark faces, necks and legs.";
+    	descriptions[3] = "The Virginia Rail, Rallus limicola, is a small waterbird, of the family Rallidae.";
 
-        Marker machingunlily = new IconMarker("Machingun Lily", 35.485881, 139.341032, 20, Color.DKGRAY, icons[0], descriptions[0]);
+        Marker machingunlily = new IconMarker("Machingun Lily", 35.485881, 139.341032, 30, Color.DKGRAY, icons[0], descriptions[0]);
         cachedMarkers.add(machingunlily);
         
-        Marker marmot = new IconMarker("Marmot", 35.486082, 139.341, 10, Color.DKGRAY, icons[1], descriptions[1]);
+        Marker marmot = new IconMarker("Marmot", 35.486082, 139.341, 30, Color.DKGRAY, icons[1], descriptions[1]);
         cachedMarkers.add(marmot);
 
-        Marker elk_bull = new IconMarker("Elk bull", 35.486231, 139.341016, 10, Color.DKGRAY, icons[2], descriptions[2]);
+        Marker elk_bull = new IconMarker("Elk bull", 35.486231, 139.341016, 30, Color.DKGRAY, icons[2], descriptions[2]);
         cachedMarkers.add(elk_bull);
+        
+        Marker bison = new IconMarker("Bison", 35.484248, 139.342797, 30, Color.DKGRAY, icons[2], descriptions[3]);
+        cachedMarkers.add(bison);
         
         return cachedMarkers;
     }

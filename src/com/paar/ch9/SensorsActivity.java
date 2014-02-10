@@ -107,6 +107,7 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
                     	localLocation.setLongitude(-75.0);
                     	localLocation.setAltitude(0);
                     	onLocationChanged(localLocation);
+//                    	System.out.println(localLocation.setLatitude() + "," + localLocation.setLongitude());
                     }
                 } catch (Exception ex2) {
                     onLocationChanged(ARData.hardFix);
@@ -228,6 +229,7 @@ public class SensorsActivity extends Activity implements SensorEventListener, Lo
 
     public void onLocationChanged(Location location) {
         ARData.setCurrentLocation(location);
+        //ロケーションの設定
         gmf = new GeomagneticField((float) ARData.getCurrentLocation().getLatitude(), 
                 (float) ARData.getCurrentLocation().getLongitude(),
                 (float) ARData.getCurrentLocation().getAltitude(), 

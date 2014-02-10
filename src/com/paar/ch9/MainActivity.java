@@ -49,10 +49,10 @@ public class MainActivity extends AugmentedActivity {
         LocalDataSource localData = new LocalDataSource(this.getResources());
         ARData.addMarkers(localData.getMarkers());
         
-//        NetworkDataSource twitter = new TwitterDataSource(this.getResources());
-//        sources.put("twitter",twitter);
-//        NetworkDataSource wikipedia = new WikipediaDataSource(this.getResources());
-//        sources.put("wiki",wikipedia);
+        NetworkDataSource twitter = new TwitterDataSource(this.getResources());
+        sources.put("twitter",twitter);
+        NetworkDataSource wikipedia = new WikipediaDataSource(this.getResources());
+        sources.put("wiki",wikipedia);
         
         // Show marker
         
