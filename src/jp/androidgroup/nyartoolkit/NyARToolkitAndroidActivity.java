@@ -28,6 +28,8 @@ import jp.nyatla.nyartoolkit.markersystem.NyARMarkerSystemConfig;
 
 import org.takanolab.ar.log.LogHttpClientPost;
 import org.takanolab.ar.log.LogWriter;
+import org.takanolab.ar.search.Detail;
+import org.takanolab.ar.search.SearchActivity;
 import org.takanolab.kGLModel.KGLException;
 import org.takanolab.kGLModel.KGLModelData;
 
@@ -156,14 +158,12 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
 	List<List<Map<String, String>>> allsubrecommendList = new ArrayList<List<Map<String, String>>>();
 	//親リストの項目要素
 	Map<String, String> recommendItem;
-	
+	//子リストの項目要素
 	Map<String, String> subrecommendItem;
 	
 	ExpandableListView recommendListView;
-	
+	//アダプター
 	SimpleExpandableListAdapter adapter;
-	
-    ExpandableListView lv;
 	
 	SetRecommendListView rlv = new SetRecommendListView("ranking");
 	String[] recommendModelnames;
@@ -302,13 +302,19 @@ public class NyARToolkitAndroidActivity extends AndSketch implements AndGLView.I
     	    	
     	    	if(childitem == "3DCG"){
     	    		
+    	    		//表示したいマーカーのIDをSET（現在決め打ち）
     	    		markerModelId = 1;
     	    		// 固定表示フラグを立てる
     				freemodeflag = true;
     				// モードが切り替わった
     				uiMode = 1;
     	    	}
-    	    	
+    	    	if(childitem == "Report"){
+    	    		
+    	    		Intent intent = new Intent(NyARToolkitAndroidActivity.this, org.takanolab.ar.search.Detail.class);
+//                    intent.putExtra("postion", position);
+                    startActivity(intent);
+    	    	}
     	    	return false;  
     		}        
     	});  

@@ -22,6 +22,7 @@
         </activity>
         <activity android:name="com.paar.ch9.AugmentedActivity"></activity>
         <activity android:name="org.takanolab.cache.irc.CachePrototypeActivity"></activity>
+        <activity android:name="org.takanolab.ar.search.Detail"></activity>
     </application>
 <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
 <uses-permission xmlns:android="http://schemas.android.com/apk/res/android" android:name="android.permission.INSTALL_PACKAGES"></uses-permission>
